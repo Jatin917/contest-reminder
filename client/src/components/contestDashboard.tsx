@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Filter, Calendar } from 'lucide-react';
-import { functionTypes, getAllUpcomingContest } from '../api/contest';
+import { functionTypes, getAllPastContest, getAllUpcomingContest } from '../api/contest';
 import { convertToISTFormatted, secondsToHoursMinutes } from '../services/DateAndTime';
 
 interface contest {
@@ -17,34 +17,25 @@ const ContestDashboard = () => {
   // const codeforcesHostInitial = {host:"codeforces"};
   // const codechefHostInitial = {host:"codechef"};
   const initialHost = {host1:'leetcode', host2:'codeforces', host3:'codechef'};
-  const [upcomingContest, setUpcomingContest] = useState<contest[]>();
+  // const [upcomingContest, setUpcomingContest] = useState<contest[]>();
+  // const [pastContest, setPastContest] = useState<contest[]>();
+  const [contests, setContests] = useState<contest[]>();
+  const [isUpcoming, setIsUpcoming] = useState(true);
   // const[leetcodeHost, setLeetcodeHost] = useState<functionTypes>({host:"leetcode"});
   // const[codeForcesHost, setcodeForcesHost] = useState<functionTypes>({host:"codeforces"});
   // const[codeChefHost, setcodeChefHost] = useState<functionTypes>({host:"codechef"});
   const [host, setHost] = useState<{host1:string, host2:string, host3:string}>(initialHost);
 
   async function fetchContest(){
-    const response = await getAllUpcomingContest(host);
+    const response = isUpcoming ? await getAllUpcomingContest(host) : await getAllPastContest(host);
     console.log("response is ", response);
     if(!response || !response.data) return;
-    setUpcomingContest(response.data);
+    setContests(response.data)
   } 
 
   useEffect(()=>{
     fetchContest();
-  }, [host]);
-  // Sample contest data
-  // const contestData = [
-  //   { id: 1, name: "Weekly Contest 387", platform: "Leetcode", date: "2025-03-22", time: "10:30 AM", duration: "1.5 hours", difficulty: "Medium" },
-  //   { id: 2, name: "Codeforces Round #912", platform: "Codeforces", date: "2025-03-20", time: "7:00 PM", duration: "2 hours", difficulty: "Hard" },
-  //   { id: 3, name: "Biweekly Contest 124", platform: "Leetcode", date: "2025-03-29", time: "10:30 AM", duration: "1.5 hours", difficulty: "Medium" },
-  //   { id: 4, name: "Educational Codeforces Round #169", platform: "Codeforces", date: "2025-03-25", time: "6:30 PM", duration: "2 hours", difficulty: "Medium" },
-  //   { id: 5, name: "CodeChef Starters 122", platform: "CodeChef", date: "2025-03-27", time: "8:00 PM", duration: "3 hours", difficulty: "Medium" },
-  //   { id: 6, name: "Weekly Contest 386", platform: "Leetcode", date: "2025-03-15", time: "10:30 AM", duration: "1.5 hours", difficulty: "Medium" },
-  //   { id: 7, name: "Codeforces Round #911", platform: "Codeforces", date: "2025-03-12", time: "7:00 PM", duration: "2 hours", difficulty: "Hard" },
-  //   { id: 8, name: "Biweekly Contest 123", platform: "Leetcode", date: "2025-03-01", time: "10:30 AM", duration: "1.5 hours", difficulty: "Medium" },
-  //   { id: 9, name: "CodeChef Starters 121", platform: "CodeChef", date: "2025-03-06", time: "8:00 PM", duration: "3 hours", difficulty: "Hard" }
-  // ];
+  }, [host, isUpcoming]);
 
   const platforms = ['Leetcode', "Codeforces", "CodeChef"];
   
@@ -86,11 +77,7 @@ const ContestDashboard = () => {
   const [activePlatformFilter, setActivePlatformFilter] = useState(platformFilters.find(f => f.name === "All Platforms"));
 
   // Filter contests based on user selection
-  // const filteredContests = upcomingContest && upcomingContest.filter(contest => {
-  //   const today = new Date();
-  //   const contestDate = new Date(contest.start);
-  //   const isUpcoming = contestDate >= today;
-    
+  // const filteredContests = contests && contests.filter(contest => {
   //   return (
   //     // Time filter (upcoming or past)
   //     ((activeTimeFilter === 'upcoming' && isUpcoming) || 
@@ -128,7 +115,11 @@ const ContestDashboard = () => {
             </div>
             <div className="flex space-x-2">
               <button
-                onClick={() => setActiveTimeFilter('upcoming')}
+                onClick={() => {
+                  setActiveTimeFilter('upcoming')
+                  setIsUpcoming(true)
+                }
+                }
                 className={`px-4 py-2 rounded-md ${
                   activeTimeFilter === 'upcoming'
                     ? 'bg-blue-600 text-white'
@@ -138,7 +129,10 @@ const ContestDashboard = () => {
                 Upcoming
               </button>
               <button
-                onClick={() => setActiveTimeFilter('past')}
+                onClick={() =>{
+                  setActiveTimeFilter('past')
+                  setIsUpcoming(false);
+                }}
                 className={`px-4 py-2 rounded-md ${
                   activeTimeFilter === 'past'
                     ? 'bg-blue-600 text-white'
@@ -176,8 +170,8 @@ const ContestDashboard = () => {
         
         {/* Contest Cards */}
         <div className="space-y-4">
-          {upcomingContest && upcomingContest.length > 0 ? (
-            upcomingContest.map(contest => (
+          {contests && contests.length > 0 ? (
+            contests.map(contest => (
               <div key={contest.id} className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
                 <div className="flex justify-between items-start">
                   <div>
