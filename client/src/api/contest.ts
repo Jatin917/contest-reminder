@@ -58,7 +58,8 @@ export const getAllUpcomingContest = async (host:{host1:string, host2:string, ho
 }
 const getPastContest = async({host} : functionTypes) =>{
     try {
-        const repsonse = await axios.get(url+`/?host=${host}.com&order_by=-start&limit=4`, 
+        const now = new Date().toISOString().slice(0, 19);
+        const repsonse = await axios.get(url+`/?host=${host}.com&end__lte=${now}&order_by=-end&limit=4`, 
             {
                 headers:{
                     Authorization: 'ApiKey Jatin917:92898c1c7cbe6d17f44543e95c4a820ed702f990'

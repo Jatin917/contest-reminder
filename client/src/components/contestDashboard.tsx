@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Filter, Calendar } from 'lucide-react';
 import { functionTypes, getAllPastContest, getAllUpcomingContest } from '../api/contest';
 import { convertToISTFormatted, secondsToHoursMinutes } from '../services/DateAndTime';
+import AttachSolutionModal from './attachLinkModal';
 
 interface contest {
   id:number, 
@@ -13,19 +14,23 @@ interface contest {
 }
 
 const ContestDashboard = () => {
-  // const leetcodeHostInitial = {host:"leetcode"};
-  // const codeforcesHostInitial = {host:"codeforces"};
-  // const codechefHostInitial = {host:"codechef"};
   const initialHost = {host1:'leetcode', host2:'codeforces', host3:'codechef'};
-  // const [upcomingContest, setUpcomingContest] = useState<contest[]>();
-  // const [pastContest, setPastContest] = useState<contest[]>();
   const [contests, setContests] = useState<contest[]>();
   const [isUpcoming, setIsUpcoming] = useState(true);
-  // const[leetcodeHost, setLeetcodeHost] = useState<functionTypes>({host:"leetcode"});
-  // const[codeForcesHost, setcodeForcesHost] = useState<functionTypes>({host:"codeforces"});
-  // const[codeChefHost, setcodeChefHost] = useState<functionTypes>({host:"codechef"});
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedContest, setSelectedContest] = useState<contest>();
+
   const [host, setHost] = useState<{host1:string, host2:string, host3:string}>(initialHost);
 
+
+  const openModal = (contest:contest) => {
+    setSelectedContest(contest);
+    setIsModalOpen(true);
+  };
+  
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
   async function fetchContest(){
     const response = isUpcoming ? await getAllUpcomingContest(host) : await getAllPastContest(host);
     console.log("response is ", response);
@@ -193,7 +198,7 @@ const ContestDashboard = () => {
                 </div>
                 <div className="mt-4 flex justify-end">
                   {activeTimeFilter === 'past' ? (
-                    <button className="flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md">
+                    <button onClick={()=>openModal(contest)} className="flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
                         <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                         <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
@@ -220,6 +225,12 @@ const ContestDashboard = () => {
           )}
         </div>
       </div>
+
+      <AttachSolutionModal 
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        contestInfo={selectedContest}
+      />
     </div>
   );
 };
