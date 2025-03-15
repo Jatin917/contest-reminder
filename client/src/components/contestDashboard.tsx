@@ -1,19 +1,44 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Filter, Calendar } from 'lucide-react';
+import { functionTypes, getAllUpcomingContest } from '../api/contest';
+
+interface contest {
+  id:number, 
+  duration:number,
+  end:string,
+  start:string,
+  event:string,
+  host:string
+}
 
 const ContestDashboard = () => {
+  const [upcomingContest, setUpcomingContest] = useState<contest[]>();
+  const[leetcodeHost, setLeetcodeHost] = useState<functionTypes>();
+  const[codeForcesHost, setcodeForcesHost] = useState<functionTypes>();
+  const[codeChefHost, setcodeChefHost] = useState<functionTypes>();
+
+  async function fetchContest(){
+    if(!leetcodeHost || !codeChefHost || !codeForcesHost) return;
+    const response = await getAllUpcomingContest(leetcodeHost, codeChefHost, codeForcesHost);
+    if(!response || !response.data) return;
+    setUpcomingContest(response.data);
+  } 
+
+  useEffect(()=>{
+    fetchContest();
+  }, [leetcodeHost, codeChefHost, codeForcesHost]);
   // Sample contest data
-  const contestData = [
-    { id: 1, name: "Weekly Contest 387", platform: "Leetcode", date: "2025-03-22", time: "10:30 AM", duration: "1.5 hours", difficulty: "Medium" },
-    { id: 2, name: "Codeforces Round #912", platform: "Codeforces", date: "2025-03-20", time: "7:00 PM", duration: "2 hours", difficulty: "Hard" },
-    { id: 3, name: "Biweekly Contest 124", platform: "Leetcode", date: "2025-03-29", time: "10:30 AM", duration: "1.5 hours", difficulty: "Medium" },
-    { id: 4, name: "Educational Codeforces Round #169", platform: "Codeforces", date: "2025-03-25", time: "6:30 PM", duration: "2 hours", difficulty: "Medium" },
-    { id: 5, name: "CodeChef Starters 122", platform: "CodeChef", date: "2025-03-27", time: "8:00 PM", duration: "3 hours", difficulty: "Medium" },
-    { id: 6, name: "Weekly Contest 386", platform: "Leetcode", date: "2025-03-15", time: "10:30 AM", duration: "1.5 hours", difficulty: "Medium" },
-    { id: 7, name: "Codeforces Round #911", platform: "Codeforces", date: "2025-03-12", time: "7:00 PM", duration: "2 hours", difficulty: "Hard" },
-    { id: 8, name: "Biweekly Contest 123", platform: "Leetcode", date: "2025-03-01", time: "10:30 AM", duration: "1.5 hours", difficulty: "Medium" },
-    { id: 9, name: "CodeChef Starters 121", platform: "CodeChef", date: "2025-03-06", time: "8:00 PM", duration: "3 hours", difficulty: "Hard" }
-  ];
+  // const contestData = [
+  //   { id: 1, name: "Weekly Contest 387", platform: "Leetcode", date: "2025-03-22", time: "10:30 AM", duration: "1.5 hours", difficulty: "Medium" },
+  //   { id: 2, name: "Codeforces Round #912", platform: "Codeforces", date: "2025-03-20", time: "7:00 PM", duration: "2 hours", difficulty: "Hard" },
+  //   { id: 3, name: "Biweekly Contest 124", platform: "Leetcode", date: "2025-03-29", time: "10:30 AM", duration: "1.5 hours", difficulty: "Medium" },
+  //   { id: 4, name: "Educational Codeforces Round #169", platform: "Codeforces", date: "2025-03-25", time: "6:30 PM", duration: "2 hours", difficulty: "Medium" },
+  //   { id: 5, name: "CodeChef Starters 122", platform: "CodeChef", date: "2025-03-27", time: "8:00 PM", duration: "3 hours", difficulty: "Medium" },
+  //   { id: 6, name: "Weekly Contest 386", platform: "Leetcode", date: "2025-03-15", time: "10:30 AM", duration: "1.5 hours", difficulty: "Medium" },
+  //   { id: 7, name: "Codeforces Round #911", platform: "Codeforces", date: "2025-03-12", time: "7:00 PM", duration: "2 hours", difficulty: "Hard" },
+  //   { id: 8, name: "Biweekly Contest 123", platform: "Leetcode", date: "2025-03-01", time: "10:30 AM", duration: "1.5 hours", difficulty: "Medium" },
+  //   { id: 9, name: "CodeChef Starters 121", platform: "CodeChef", date: "2025-03-06", time: "8:00 PM", duration: "3 hours", difficulty: "Hard" }
+  // ];
 
   const platforms = ['Leetcode', "Codeforces", "CodeChef"];
   
@@ -55,9 +80,9 @@ const ContestDashboard = () => {
   const [activePlatformFilter, setActivePlatformFilter] = useState(platformFilters.find(f => f.name === "All Platforms"));
 
   // Filter contests based on user selection
-  const filteredContests = contestData.filter(contest => {
+  const filteredContests = upcomingContest && upcomingContest.filter(contest => {
     const today = new Date();
-    const contestDate = new Date(contest.date);
+    const contestDate = new Date(contest.start);
     const isUpcoming = contestDate >= today;
     
     return (
@@ -65,7 +90,7 @@ const ContestDashboard = () => {
       ((activeTimeFilter === 'upcoming' && isUpcoming) || 
        (activeTimeFilter === 'past' && !isUpcoming)) && 
       // Platform filter
-      activePlatformFilter?.platforms.includes(contest.platform)
+      activePlatformFilter?.platforms.includes((contest.host).split(".")[0])
     );
   });
 
@@ -132,24 +157,24 @@ const ContestDashboard = () => {
         
         {/* Contest Cards */}
         <div className="space-y-4">
-          {filteredContests.length > 0 ? (
+          {filteredContests && filteredContests.length > 0 ? (
             filteredContests.map(contest => (
               <div key={contest.id} className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-800">{contest.name}</h3>
+                    <h3 className="text-xl font-semibold text-gray-800">{contest.event}</h3>
                     <div className="flex items-center mt-2">
                       <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                        {contest.platform}
+                        {contest.host.split(".")[0]}
                       </span>
                       <span className="mx-2 text-gray-400">•</span>
-                      <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
+                      {/* <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
                         {contest.difficulty}
-                      </span>
+                      </span> */}
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-gray-700">{contest.date} at {contest.time}</div>
+                    <div className="text-gray-700">{contest.start} at {contest.duration}</div>
                     <div className="text-gray-500 text-sm">Duration: {contest.duration}</div>
                   </div>
                 </div>
