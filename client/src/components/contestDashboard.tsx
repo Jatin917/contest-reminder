@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Filter, Calendar } from 'lucide-react';
 import { functionTypes, getAllUpcomingContest } from '../api/contest';
+import { convertToISTFormatted, secondsToHoursMinutes } from '../services/DateAndTime';
 
 interface contest {
   id:number, 
@@ -12,21 +13,26 @@ interface contest {
 }
 
 const ContestDashboard = () => {
+  // const leetcodeHostInitial = {host:"leetcode"};
+  // const codeforcesHostInitial = {host:"codeforces"};
+  // const codechefHostInitial = {host:"codechef"};
+  const initialHost = {host1:'leetcode', host2:'codeforces', host3:'codechef'};
   const [upcomingContest, setUpcomingContest] = useState<contest[]>();
-  const[leetcodeHost, setLeetcodeHost] = useState<functionTypes>();
-  const[codeForcesHost, setcodeForcesHost] = useState<functionTypes>();
-  const[codeChefHost, setcodeChefHost] = useState<functionTypes>();
+  // const[leetcodeHost, setLeetcodeHost] = useState<functionTypes>({host:"leetcode"});
+  // const[codeForcesHost, setcodeForcesHost] = useState<functionTypes>({host:"codeforces"});
+  // const[codeChefHost, setcodeChefHost] = useState<functionTypes>({host:"codechef"});
+  const [host, setHost] = useState<{host1:string, host2:string, host3:string}>(initialHost);
 
   async function fetchContest(){
-    if(!leetcodeHost || !codeChefHost || !codeForcesHost) return;
-    const response = await getAllUpcomingContest(leetcodeHost, codeChefHost, codeForcesHost);
+    const response = await getAllUpcomingContest(host);
+    console.log("response is ", response);
     if(!response || !response.data) return;
     setUpcomingContest(response.data);
   } 
 
   useEffect(()=>{
     fetchContest();
-  }, [leetcodeHost, codeChefHost, codeForcesHost]);
+  }, [host]);
   // Sample contest data
   // const contestData = [
   //   { id: 1, name: "Weekly Contest 387", platform: "Leetcode", date: "2025-03-22", time: "10:30 AM", duration: "1.5 hours", difficulty: "Medium" },
@@ -43,7 +49,7 @@ const ContestDashboard = () => {
   const platforms = ['Leetcode', "Codeforces", "CodeChef"];
   
   // Create platform combination filters
-  const createPlatformCombinations = (platforms: unknown[]) => {
+  const createPlatformCombinations = (platforms: string[]) => {
     const result = [];
     
     // Add individual platforms
@@ -80,19 +86,32 @@ const ContestDashboard = () => {
   const [activePlatformFilter, setActivePlatformFilter] = useState(platformFilters.find(f => f.name === "All Platforms"));
 
   // Filter contests based on user selection
-  const filteredContests = upcomingContest && upcomingContest.filter(contest => {
-    const today = new Date();
-    const contestDate = new Date(contest.start);
-    const isUpcoming = contestDate >= today;
+  // const filteredContests = upcomingContest && upcomingContest.filter(contest => {
+  //   const today = new Date();
+  //   const contestDate = new Date(contest.start);
+  //   const isUpcoming = contestDate >= today;
     
-    return (
-      // Time filter (upcoming or past)
-      ((activeTimeFilter === 'upcoming' && isUpcoming) || 
-       (activeTimeFilter === 'past' && !isUpcoming)) && 
-      // Platform filter
-      activePlatformFilter?.platforms.includes((contest.host).split(".")[0])
-    );
-  });
+  //   return (
+  //     // Time filter (upcoming or past)
+  //     ((activeTimeFilter === 'upcoming' && isUpcoming) || 
+  //      (activeTimeFilter === 'past' && !isUpcoming)) && 
+  //     // Platform filter
+  //     activePlatformFilter?.platforms.includes((contest.host).split(".")[0])
+  //   );
+  // });
+
+  const handleActivePlatformFilter = (filter: { name: string; platforms: string[] }) => {
+    const platforms = filter.platforms;
+  
+    setHost({
+      host1: platforms.includes("Leetcode") ? "leetcode" : "",
+      host2: platforms.includes("Codeforces") ? "codeforces" : "",
+      host3: platforms.includes("CodeChef") ? "codechef" : "",
+    });
+    console.log(host, platforms);
+    setActivePlatformFilter(filter);
+  };
+  
 
   return (
     <div className="bg-gray-50 min-h-screen p-6">
@@ -138,10 +157,10 @@ const ContestDashboard = () => {
               <h2 className="text-lg font-semibold text-gray-700">Platforms</h2>
             </div>
             <div className="flex flex-wrap gap-2">
-              {platformFilters.map(filter => (
+              {platformFilters.map((filter) => (
                 <button
                   key={filter.name}
-                  onClick={() => setActivePlatformFilter(filter)}
+                  onClick={() => handleActivePlatformFilter(filter)}
                   className={`px-4 py-2 rounded-md ${
                     activePlatformFilter?.name === filter.name
                       ? 'bg-blue-600 text-white'
@@ -157,8 +176,8 @@ const ContestDashboard = () => {
         
         {/* Contest Cards */}
         <div className="space-y-4">
-          {filteredContests && filteredContests.length > 0 ? (
-            filteredContests.map(contest => (
+          {upcomingContest && upcomingContest.length > 0 ? (
+            upcomingContest.map(contest => (
               <div key={contest.id} className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
                 <div className="flex justify-between items-start">
                   <div>
@@ -174,8 +193,8 @@ const ContestDashboard = () => {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-gray-700">{contest.start} at {contest.duration}</div>
-                    <div className="text-gray-500 text-sm">Duration: {contest.duration}</div>
+                    <div className="text-gray-700">{convertToISTFormatted(contest.start)}</div>
+                    <div className="text-gray-500 text-sm">Duration: {secondsToHoursMinutes(contest.duration)}</div>
                   </div>
                 </div>
                 <div className="mt-4 flex justify-end">
