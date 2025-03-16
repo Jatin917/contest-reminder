@@ -1,16 +1,15 @@
 import { Request, Response } from 'express';
-import Solution from '../model/model';
+import Contest from '../model/model';
 
 
 export const attachSolution = async (req: Request, res: Response) => {
     try {
-        const { id, url, host, event } = req.body;
+        const { id, url, host } = req.body;
 
-        if (!id || !url || !host || !event) {
+        if (!id || !url || !host) {
             return res.status(400).json({ message: "All Fields Required" });
         }
-
-        const response = await Solution.create({ id, url, host, event });
+        const response = await Contest.findOneAndUpdate({ id, host }, {url:url});
 
         if (!response) {
             return res.status(500).json({ message: "Error in saving solution" });
