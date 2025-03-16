@@ -61,7 +61,8 @@ const getPastContest = async({host} : functionTypes) =>{
         const now = new Date().toISOString().slice(0, 19);
         const repsonse = await axios.get('http://localhost:3000/api/pastcontest');
         if(!repsonse) return {status:400, message:"didn't got data"};
-        return {status:200, data:repsonse.data.objects}
+        console.log("past Constest are", repsonse.data.data);
+        return {status:200, data:repsonse.data.data}
     } catch (error) {
         return {status:501, message:(error as Error).message}
     }

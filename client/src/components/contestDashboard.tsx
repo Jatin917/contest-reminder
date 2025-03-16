@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Filter, Calendar } from 'lucide-react';
-import { functionTypes, getAllPastContest, getAllUpcomingContest } from '../api/contest';
+import { getAllPastContest, getAllUpcomingContest } from '../api/contest';
 import { convertToISTFormatted, secondsToHoursMinutes } from '../services/DateAndTime';
 import AttachSolutionModal from './attachLinkModal';
 
@@ -173,57 +173,76 @@ const ContestDashboard = () => {
           </div>
         </div>
         
-        {/* Contest Cards */}
-        <div className="space-y-4">
-          {contests && contests.length > 0 ? (
-            contests.map(contest => (
-              <div key={contest.id} className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="text-xl font-semibold text-gray-800">{contest.event}</h3>
-                    <div className="flex items-center mt-2">
-                      <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                        {contest.host.split(".")[0]}
-                      </span>
-                      <span className="mx-2 text-gray-400">•</span>
-                      {/* <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
-                        {contest.difficulty}
-                      </span> */}
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-gray-700">{convertToISTFormatted(contest.start)}</div>
-                    <div className="text-gray-500 text-sm">Duration: {secondsToHoursMinutes(contest.duration)}</div>
-                  </div>
-                </div>
-                <div className="mt-4 flex justify-end">
-                  {activeTimeFilter === 'past' ? (
-                    <button onClick={()=>openModal(contest)} className="flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-                      </svg>
-                      Attach Solution
-                    </button>
-                  ) : (
-                    <button className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-                        <path d="M10 2h4"></path>
-                        <path d="M12 14v-4"></path>
-                        <circle cx="12" cy="14" r="8"></circle>
-                      </svg>
-                      Set Reminder
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="bg-white rounded-lg shadow-md p-8 text-center">
-              <p className="text-gray-600 text-lg">No contests found matching your filters</p>
+{/* Contest Cards */}
+<div className="space-y-4">
+  {contests && contests.length > 0 ? (
+    contests.map(contest => (
+      <div key={contest.id} className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+        <div className="flex justify-between items-start">
+          <div>
+            <h3 className="text-xl font-semibold text-gray-800">{contest.event}</h3>
+            <div className="flex items-center mt-2">
+              <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                {contest.host.split(".")[0]}
+              </span>
+              <span className="mx-2 text-gray-400">•</span>
+              {/* <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
+                {contest.difficulty}
+              </span> */}
             </div>
+          </div>
+          <div className="text-right">
+            <div className="text-gray-700">{convertToISTFormatted(contest.start)}</div>
+            <div className="text-gray-500 text-sm">Duration: {secondsToHoursMinutes(contest.duration)}</div>
+          </div>
+        </div>
+        <div className="mt-4 flex justify-end">
+          {activeTimeFilter === 'past' ? (
+            contest.url ? (
+              <a 
+                href={contest.url} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                  <polyline points="15 3 21 3 21 9"></polyline>
+                  <line x1="10" y1="14" x2="21" y2="3"></line>
+                </svg>
+                View Solution
+              </a>
+            ) : (
+              <button 
+                onClick={() => openModal(contest)} 
+                className="flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+                Attach Solution
+              </button>
+            )
+          ) : (
+            <button className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                <path d="M10 2h4"></path>
+                <path d="M12 14v-4"></path>
+                <circle cx="12" cy="14" r="8"></circle>
+              </svg>
+              Set Reminder
+            </button>
           )}
         </div>
+      </div>
+    ))
+  ) : (
+    <div className="bg-white rounded-lg shadow-md p-8 text-center">
+      <p className="text-gray-600 text-lg">No contests found matching your filters</p>
+    </div>
+  )}
+</div>
       </div>
 
       <AttachSolutionModal 
