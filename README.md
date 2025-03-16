@@ -17,8 +17,8 @@ It helps users **track upcoming and past coding contests** from **Codeforces, Co
 ---
 
 ## 🎥 Video Demonstrations
-📌 **Automatically Attaching YouTube Links** – [Watch Video](#)  
-📌 **UI and Features Overview** – [Watch Video](#)  
+📌 **Automatically Attaching YouTube Links** – [Watch Video](https://www.loom.com/share/ab691853036e448cae9cb27306f094ae)  
+📌 **UI and Features Overview** – [Watch Video](https://www.loom.com/share/a1f59e69162045e799d800ea3a9d7bd7)  
 
 ---
 
@@ -39,9 +39,6 @@ It helps users **track upcoming and past coding contests** from **Codeforces, Co
 ### **API Integration:**
 - **Google Developer Console (YouTube API)**  
 - **Clist.by API** (for contest data)  
-
-### **State Management:**
-- React Context API  
 
 ---
 
