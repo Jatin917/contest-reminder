@@ -1,7 +1,11 @@
 import Contest from "../model/model";
 import axios from 'axios'
+import dotenv from 'dotenv';
+dotenv.config();
+
 
 const url = "https://clist.by:443/api/v4/contest";
+const api_key = process.env.CLISTAPI;
 
 export const pollingPastContest = async(host:string) =>{
     try {
@@ -9,7 +13,7 @@ export const pollingPastContest = async(host:string) =>{
         const response = await axios.get(url+`/?host=${host}.com&end__lte=${now}&order_by=-end&limit=4`, 
             {
                 headers:{
-                    Authorization: 'ApiKey Jatin917:92898c1c7cbe6d17f44543e95c4a820ed702f990'
+                    Authorization: 'ApiKey ' + api_key
                 }
             }
         );

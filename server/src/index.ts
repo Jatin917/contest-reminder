@@ -3,7 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { Connection } from './db/db';
 import { attachSolution } from './Controller/addLink';
-import { checkNewVideo, checkNewVideos } from './Services/Polling-New-Video';
+import { checkNewVideos } from './Services/Polling-New-Video';
 import { checkingInDB } from './Services/Polling-Past-Contest';
 import { getPastContest } from './Controller/getPastContest';
 
@@ -34,7 +34,7 @@ app.listen(port, () => {
 Connection(url);
 
 // // 4️⃣ Run polling every 60 seconds
-setInterval(checkNewVideos, 10 * 1000);
+setInterval(checkNewVideos, 60 * 1000);
 console.log('🚀 Polling service started... Checking for new videos every 1 minute.');
 
 setInterval(checkingInDB, 3600*1000);

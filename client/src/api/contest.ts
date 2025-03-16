@@ -10,7 +10,7 @@ const getUpcomingContest = async({host} : functionTypes) =>{
         const repsonse = await axios.get(url+`/?upcoming=true&host=${host}.com`, 
             {
                 headers:{
-                    Authorization: 'ApiKey Jatin917:92898c1c7cbe6d17f44543e95c4a820ed702f990'
+                    Authorization: 'ApiKey ' + import.meta.env.VITE_API_BASE_URL
                 }
             }
         );
