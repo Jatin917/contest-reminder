@@ -1,12 +1,14 @@
 import mongoose from "mongoose";
 
-const solutionSchema = new mongoose.Schema({
-  id: { type: String, required: true, unique: true }, // Unique ID
-  url: { type: String, required: true }, // Solution URL
-  host: { type: String, required: true }, // Platform hosting the solution
-  event: { type: String, required: true }, // Related event name
+const ContestSchema = new mongoose.Schema({
+  id: { type: Number, required: true, unique: true }, // Unique ID
+  url: { type: String, }, // Solution URL
+  host: { type: String, required: true }, // Platform hosting the contest
+  event: { type: String, required: true }, // Related event/Title name
+  start: {type:String, required:true},
+  duration: {type:Number, required:true},
 }, { timestamps: true }); // Adds createdAt & updatedAt fields
 
-const Solution = mongoose.model("Solution", solutionSchema);
+const Contest = mongoose.model("Contests", ContestSchema);
 
-export default Solution;
+export default Contest;

@@ -3,6 +3,9 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { Connection } from './db/db';
 import { attachSolution } from './Controller/addLink';
+import { checkNewVideo } from './Services/Polling-New-Video';
+import { checkingInDB } from './Services/Polling-Past-Contest';
+import { getPastContest } from './Controller/getPastContest';
 
 dotenv.config();
 
@@ -17,6 +20,7 @@ const url = process.env.DATABASE_URL || '';
 const router = express.Router(); 
 
 router.post('/attachSolution', attachSolution);
+router.get('/pastcontest', getPastContest);
 
 // ✅ Mount the router in the app
 app.use('/api', router);
@@ -26,3 +30,9 @@ app.listen(port, () => {
 });
 
 Connection(url);
+
+// // 4️⃣ Run polling every 60 seconds
+// setInterval(checkNewVideo, 60 * 1000);
+// console.log('🚀 Polling service started... Checking for new videos every 1 minute.');
+
+setInterval(checkingInDB, 3600*1000);
