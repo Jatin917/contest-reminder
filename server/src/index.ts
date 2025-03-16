@@ -3,7 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { Connection } from './db/db';
 import { attachSolution } from './Controller/addLink';
-import { checkNewVideo } from './Services/Polling-New-Video';
+import { checkNewVideo, checkNewVideos } from './Services/Polling-New-Video';
 import { checkingInDB } from './Services/Polling-Past-Contest';
 import { getPastContest } from './Controller/getPastContest';
 
@@ -15,6 +15,8 @@ app.use(express.json()); // Ensure JSON parsing middleware is included
 
 const port = 3000;
 const url = process.env.DATABASE_URL || '';
+
+
 
 // ✅ Use `express.Router()` instead of `app.router()`
 const router = express.Router(); 
@@ -32,7 +34,7 @@ app.listen(port, () => {
 Connection(url);
 
 // // 4️⃣ Run polling every 60 seconds
-// setInterval(checkNewVideo, 60 * 1000);
-// console.log('🚀 Polling service started... Checking for new videos every 1 minute.');
+setInterval(checkNewVideos, 10 * 1000);
+console.log('🚀 Polling service started... Checking for new videos every 1 minute.');
 
 setInterval(checkingInDB, 3600*1000);

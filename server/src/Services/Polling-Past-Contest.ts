@@ -45,10 +45,10 @@ export const checkingInDB = async () => {
 
             for (const contest of contests) {
                 const existingContest = await Contest.findOne({ id: contest.id });
-
+                let event = contest.event;
                 if (!existingContest) {
                     const resp = await Contest.create({
-                        event: contest.event,
+                        event: event,
                         start: contest.start, // Include other fields as needed
                         duration: contest.duration,
                         host: platform,

@@ -1,42 +1,83 @@
 import axios from 'axios'
+import Contest from '../model/model';
+import dotenv from 'dotenv';
+dotenv.config();
+const PLAYLISTS = [
+    { name: "CodeChef", id: process.env.CODECHEF_PLAYLIST_ID },
+    { name: "Leetcode", id: process.env.LEETCODE_PLAYLIST_ID},
+    { name: "CodeForces", id: process.env.CODEFORCES_PLAYLIST_ID }
+];
 
 const API_KEY = process.env.YOUTUBE_API_KEY;
-const CHANNEL_ID = process.env.CHANNEL_ID;
 
-let lastVideoId: (null|Number) = null;  // Stores last checked video ID
+
+
+
+
 
 // Function to fetch the latest video
-export async function checkNewVideo() {
+
+async function attachLinkToDB(url: string, title: string) {
     try {
-        // 1️⃣ Get Uploads Playlist ID
-        const channelResponse = await axios.get(`https://www.googleapis.com/youtube/v3/playlistItems`, {
-            params: {
-                part: 'snippet',
-                playlistId:'UUqL-fzHtN3NQPbYqGymMbTA',
-                maxResults:1,
-                publishedAfter:'',
-                id: CHANNEL_ID,
-                key: API_KEY,
-            },
-        });
-
-        const videoId = channelResponse.snippet.resourceId.videoId;
-        const title = channelResponse.items[0].snippet.title;
-        const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
-
-        // 3️⃣ Check if it's a new video
-        if (videoId !== lastVideoId) {
-            console.log(`🎉 New video uploaded!`);
-            console.log(`📌 Title: ${title}`);
-            console.log(`🔗 Link: ${videoUrl}`);
-            
-            // Update last checked video ID
-            lastVideoId = videoId;
-        } else {
-            console.log(`🔄 No new video uploaded.`);
+        // Find and update if event includes title
+        const response = await Contest.findOneAndUpdate(
+            { event: { $regex: title, $options: "i" } }, 
+            { $set: { url: url } }, 
+            { new: true } 
+        );
+        
+        if (!response) {
+            console.log("No matching contest found to add the link.");
+            return { status: 404, message: "No matching contest found." };
         }
+        
+        console.log("Link added successfully:", response);
+        return { status: 201, message: "Added Link" };
+        
     } catch (error) {
-        console.error('❌ Error fetching video:', error.response?.data || error.message);
+        console.error("Error updating link:", (error as Error).message);
+        return { status: 500, message: "Internal Server Error" };
     }
 }
 
+let lastVideoIds= {CodeChef:'', Leetcode:'', CodeForces:''};  // Stores last checked video ID
+export async function checkNewVideos() {
+    try {
+        for (const platform of PLAYLISTS) {
+            const { name, id } = platform;
+            
+            // Fetch latest video from the playlist
+            const response = await axios.get(`https://www.googleapis.com/youtube/v3/playlistItems`, {
+                params: {
+                    part: "snippet",
+                    playlistId: id,
+                    maxResults: 1,
+                    key: API_KEY
+                },
+            });
+
+            if (response.data.items.length === 0) {
+                console.log(`No videos found in ${name} playlist.`);
+                continue;
+            }
+
+            // Extract video details
+            const latestVideo = response.data.items[0];
+            const videoId = latestVideo.snippet.resourceId.videoId;
+            const title = latestVideo.snippet.title;
+            const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+
+            // Check if it's a new video for this platform
+            if (lastVideoIds[name] !== videoId) {
+                await attachLinkToDB(videoUrl, title.split("|")[0]);
+                console.log(`📌 [${name}] Title: ${title}`);
+                console.log(`🔗 Link: ${videoUrl}`);
+                lastVideoIds[name] = videoId; // Update last video ID for this platform
+            } else {
+                console.log(`🔄 [${name}] No new video uploaded.`);
+            }
+        }
+    } catch (error) {
+        console.error("❌ Error fetching video:", error.response?.data || error.message);
+    }
+}
