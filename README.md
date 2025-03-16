@@ -1,10 +1,3 @@
-# contest-reminder
-
-
-Video_url=>https://www.loom.com/share/ab691853036e448cae9cb27306f094ae?sid=d62a051e-b01c-46d5-995c-49e7f601941e
-
-
-
 Contest Reminder - MERN Stack Project (TypeScript)
 Overview
 Contest Reminder is a full-stack web application built with the MERN stack (MongoDB, Express.js, React.js, Node.js) and TypeScript. It helps users track upcoming and past coding contests from Codeforces, CodeChef, and Leetcode.
