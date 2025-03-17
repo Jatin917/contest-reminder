@@ -6,7 +6,7 @@ It helps users **track upcoming and past coding contests** from **Codeforces, Co
 
 ## 🌟 Features
 ✅ Fetch **upcoming contests** from Codeforces, CodeChef, and Leetcode  
-✅ Show **contest date and countdown timer** before it starts  
+✅ Show **contest date** 
 ✅ Display **past contests** with **solution links**  
 ✅ **Filter contests** by platform (Codeforces, CodeChef, Leetcode)  
 ✅ **Bookmark** contests for future reference  
