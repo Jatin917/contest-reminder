@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import axios from 'axios';
 
-const AttachSolutionModal = ({ isOpen, onClose, contestInfo }) => {
+const AttachSolutionModal = ({ isOpen, onClose, contestInfo, isDarkMode=false }) => {
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -63,63 +63,59 @@ const AttachSolutionModal = ({ isOpen, onClose, contestInfo }) => {
       });
   };
   
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-gray-800">Attach Solution</h2>
-          <button 
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <X size={20} />
-          </button>
-        </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className={`relative w-full max-w-md p-6 rounded-lg shadow-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+        <button
+          onClick={onClose}
+          className={`absolute top-4 right-4 p-1 rounded-full ${isDarkMode ? 'text-gray-400 hover:text-white hover:bg-gray-700' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'}`}
+        >
+          <X size={20} />
+        </button>
         
-        {contestInfo && (
-          <div className="mb-4 p-3 bg-blue-50 rounded-md">
-            <p className="font-medium text-blue-700">{contestInfo.name}</p>
-            <div className="flex items-center mt-1 text-sm text-blue-600">
-              <span className="bg-blue-100 px-2 py-1 rounded">{contestInfo.platform}</span>
-              <span className="ml-2">{contestInfo.date}</span>
-            </div>
-          </div>
-        )}
+        <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+          Attach Solution for {contestInfo?.event}
+        </h3>
         
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="youtube-url" className="block text-sm font-medium text-gray-700 mb-1">
-              YouTube Solution URL*
+            <label htmlFor="solutionUrl" className={`block mb-2 text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              Solution URL
             </label>
             <input
-              id="youtube-url"
-              type="text"
-              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="https://youtube.com/watch?v=..."
+              type="url"
+              id="solutionUrl"
               value={youtubeUrl}
               onChange={(e) => setYoutubeUrl(e.target.value)}
+              placeholder="https://github.com/yourusername/solution"
+              required
+              className={`w-full p-2 border rounded-md ${
+                isDarkMode 
+                  ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+              } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
             />
-            {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
           </div>
           
-          
-          <div className="flex justify-end space-x-3">
+          <div className="flex justify-end">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              className={`px-4 py-2 mr-2 rounded-md ${
+                isDarkMode
+                  ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+              disabled={isSubmitting}
             >
               Cancel
             </button>
             <button
               type="submit"
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               disabled={isSubmitting}
-              className={`px-4 py-2 rounded-md text-white ${
-                isSubmitting ? 'bg-green-400' : 'bg-green-600 hover:bg-green-700'
-              }`}
             >
-              {isSubmitting ? 'Submitting...' : 'Submit Solution'}
+              {isSubmitting ? 'Saving...' : 'Save Solution'}
             </button>
           </div>
         </form>
@@ -127,4 +123,5 @@ const AttachSolutionModal = ({ isOpen, onClose, contestInfo }) => {
     </div>
   );
 };
+
 export default AttachSolutionModal;
