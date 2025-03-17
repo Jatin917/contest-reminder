@@ -10,28 +10,33 @@ const PLAYLISTS = [
 
 const API_KEY = process.env.YOUTUBE_API_KEY;
 
-
-
-
-
-
 // Function to fetch the latest video
 
 async function attachLinkToDB(url: string, title: string) {
     try {
-        // Find and update if event includes title
+        // Normalize the title
+        let normalizedTitle = title
+            .replace(/^Leetcode\s+/i, '')   // Remove "Leetcode" at the start
+            .replace(/\bDiv\.?\s?(\d+)\b/g, 'Div. $1')  // Convert "Div", "DivX", "Div. X" → "Div. X"
+            .trim();
+
+        // MongoDB regex to match with or without "Leetcode" and optional "Unrated"
+        const regexPattern = `^(Leetcode\\s+)?${normalizedTitle.replace(/\./g, '\\.').replace(/\(Div\\.? (\d+)\)/g, '\\(Div\\.? $1\\)')}(,? Unrated| \\(Rated till 5 star\\))?$`;
+        console.log("title is ", title, regexPattern)
+
+        // Find and update the contest event
         const response = await Contest.findOneAndUpdate(
-            { event: { $regex: title, $options: "i" } }, 
+            { event: { $regex: regexPattern, $options: "i" } }, 
             { $set: { url: url } }, 
             { new: true } 
         );
-        
+
         if (!response) {
             console.log("No matching contest found to add the link.");
             return { status: 404, message: "No matching contest found." };
         }
         
-        console.log("Link added successfully:", response);
+        console.log("Link added successfully:");
         return { status: 201, message: "Added Link" };
         
     } catch (error) {

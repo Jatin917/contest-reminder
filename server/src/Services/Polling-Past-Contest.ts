@@ -50,6 +50,9 @@ export const checkingInDB = async () => {
             for (const contest of contests) {
                 const existingContest = await Contest.findOne({ id: contest.id });
                 let event = contest.event;
+                if(event.includes('weekly')){
+                    event = "Leetcode " + event;
+                }
                 if (!existingContest) {
                     const resp = await Contest.create({
                         event: event,
