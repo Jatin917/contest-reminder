@@ -387,20 +387,6 @@ const ContestDashboard = () => {
           )}
         </div>
 
-        {/* Pagination could be added here */}
-        {displayedContests.length > 10 && (
-          <div className={`flex justify-center mt-6 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-            <div className="flex items-center space-x-2">
-              <button className={`px-3 py-1 rounded-md ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'}`}>
-                Previous
-              </button>
-              <span className="mx-2">Page 1 of 2</span>
-              <button className={`px-3 py-1 rounded-md ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'}`}>
-                Next
-              </button>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Modal needs to be adjusted for dark mode */}
